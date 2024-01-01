@@ -1,4 +1,5 @@
 <?php
+include '../connection.php';
 session_start();
 
 // Include your database connection
@@ -62,6 +63,9 @@ $result = mysqli_query($con, "SELECT * FROM vacancy");
                 // Loop through the fetched vacancies and create cards
                 while ($row = mysqli_fetch_assoc($result)) {
                 ?>
+                <?php if($row['vacancies']!=0){
+?>
+                
                     <div class="col-lg-4 grid-margin stretch-card">
                         <div class="card ">
                             <div class="card-body">
@@ -72,6 +76,9 @@ $result = mysqli_query($con, "SELECT * FROM vacancy");
                               </div>
                         </div>
                     </div>
+                    <?php
+                }
+                ?>
                 <?php
                 }
                 ?>

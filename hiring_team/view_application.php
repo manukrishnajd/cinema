@@ -48,39 +48,22 @@ foreach ($applications as $application) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (isset($_POST['status'])) {
       $status = $_POST['status'];
+      // Perform status update in the application table
       $applicationId = $_POST['application_id'];
 
-      if ($status === 'Accept') {
-          // Update status in the application table
-          $updateQuery = "UPDATE application SET status = '$status' WHERE application_id = '$applicationId'";
-          $updateResult = mysqli_query($con, $updateQuery);
+      $updateQuery = "UPDATE application SET status = '$status' WHERE application_id = '$applicationId'";
+      $updateResult = mysqli_query($con, $updateQuery);
 
-          if ($updateResult) {
-              // Reduce the number of vacancies in the vacancy table
-              $getApplicationQuery = "SELECT vacancy_id FROM application WHERE application_id = '$applicationId'";
-              $getApplicationResult = mysqli_query($con, $getApplicationQuery);
-              $applicationData = mysqli_fetch_assoc($getApplicationResult);
-              $vacancyId = $applicationData['vacancy_id'];
-
-              $reduceVacancyQuery = "UPDATE vacancy SET vacancies = vacancies - 1 WHERE vacancy_id = '$vacancyId'";
-              $reduceVacancyResult = mysqli_query($con, $reduceVacancyQuery);
-
-              if ($reduceVacancyResult) {
-                  // Vacancies count updated successfully
-                  header("Location: " . $_SERVER['PHP_SELF']); // Refresh the page
-                  exit();
-              } else {
-                  echo "Error updating vacancies count: " . mysqli_error($con);
-              }
-          } else {
-              echo "Error updating status: " . mysqli_error($con);
-          }
+      if ($updateResult) {
+          // Status updated successfully
+          header("Location: " . $_SERVER['PHP_SELF']); // Refresh the page
+          exit();
+      } else {
+          // Display error message if status update fails
+          echo "Error updating status: " . mysqli_error($con);
       }
   }
 }
-
-
-
 ?>
 
 
@@ -173,10 +156,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php echo $application['status']; ?>
     <form method="post">
         <input type="hidden" name="application_id" value="<?php echo $application['application_id']; ?>"><br>
-        <?php if ($application['status'] !== 'Accept'): ?>
+        <?php if ($application['status'] == 'pending'): ?>
+          <button class='btn btn-success' type="submit" name="status" value="Accept">Accept</button><br><br>
             <button class='btn btn-danger' type="submit" name="status" value="Reject">Reject</button>
-        <?php endif; ?>
-        <?php if ($application['status'] !== 'Reject'): ?>
+          
+            <?php endif; ?>
+        <?php if ($application['status'] == 'Reject'): ?>
             <button class='btn btn-success' type="submit" name="status" value="Accept">Accept</button><br><br>
         <?php endif; ?>
     </form>
